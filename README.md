@@ -1,11 +1,11 @@
 # eBook Conference Room Display based on a Amazon Kindle Touch
 
 requirements:
-	Microsoft Exchange 2010/2013 with exchange web services enabled
-	"server" with ruby 2.x, zlib support and the following gems
-	gem install viewpoint sinatra pp
-	kindle touch with webbrowser (any tablet device with webbrowser, kindle template is provided)
-	for fullscreen web browser on kindle you need a jailbroken device
+	* Microsoft Exchange 2010/2013 with exchange web services enabled
+	* "server" with ruby 2.x, zlib support and the following gems
+	* gem install viewpoint sinatra pp
+	* kindle touch with webbrowser (any tablet device with webbrowser, kindle template is provided)
+	* for fullscreen web browser on kindle you need a jailbroken device
 
 
 execute server

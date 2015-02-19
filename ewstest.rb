@@ -7,9 +7,12 @@ include Viewpoint::EWS
 
 set :bind, '0.0.0.0'
 
-get '/' do
-	
-  retrieveews()
+get '/' do	
+  retrieveews("confroom1@exchange.local")
+end
+
+get '/room/:roomname' do
+	retrieveews(params[:roomname])
 end
 
 get '/create/:minutes' do
@@ -40,21 +43,28 @@ def createMeeting(minutes,usermail)
 
 	calendar.create_item(:subject => 'spontanes Meeting', :start => Time.now, :end => Time.now+minutes*60)
 end
+
+def getmeetingstring(cal, subjectstring)
+	return (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+subjectstring)
+end
+
  
-def retrieveews()
+def retrieveews(roomname)
 	buf = File.read('template.html')
 
 	cli=connectews()
 
-	folder = getcalendarews "confroom1@exchange.local", cli
+	folder = getcalendarews roomname, cli
 	
 	sd = Date.today()
-	ed = Date.today()+5
+	ed = Date.today()+5 #look 5 days ahead
+
 	calendaritems= folder.items_between sd, ed
-	
+
 	#calendaritems=folder.todays_items
+	
 	# => DEBUG
-	pp calendaritems.count
+	#pp calendaritems.count
 	
 	calendaritems=calendaritems.sort_by { |calendaritems| calendaritems.start }
 	calendaritems.delete_if {|calendaritems|calendaritems.end < DateTime.now()}
@@ -64,12 +74,10 @@ def retrieveews()
 	roomfree=false
 	calendaritems.each do |cal|
 		# => DEBUG
-		pp index
-		pp cal.subject
-		pp cal.start.rfc3339()
-		pp timenow.rfc3339()
-		
-		# => DEBUG
+		#pp index
+		#pp cal.subject
+		#pp cal.start.rfc3339()
+		#pp timenow.rfc3339()
 
 		if !cal.subject.nil? && index==0
 			if  timenow < cal.end &&  timenow < cal.start
@@ -79,7 +87,7 @@ def retrieveews()
 				buf.sub! '%organizer%', '-'
 				buf.sub! '%subject%', 'Raum ist frei'
 
-				buf.sub! '%nextmeeting%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+'Besprechung')
+				buf.sub! '%nextmeeting%', getmeetingstring(cal, 'Besprechung')
 				roomfree=true
 			else
 				buf.sub! '%starttime%', cal.start.strftime("%H:%M")
@@ -98,23 +106,22 @@ def retrieveews()
 		end
 
 		if index==1 
-			buf.sub! '%nextmeeting%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+'Besprechung')
-		
+			buf.sub! '%nextmeeting%', getmeetingstring(cal, 'Besprechung')
+
 			if roomfree==true
-				subjectbuf='Besprechung'
-				buf.sub! '%nextmeeting2%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+subjectbuf)
+				buf.sub! '%nextmeeting2%', getmeetingstring(cal, 'Besprechung')
 			end
 
 		end
 
 		if index==2
-			subjectbuf='Besprechung'
-			buf.sub! '%nextmeeting2%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+subjectbuf)
+			buf.sub! '%nextmeeting2%', getmeetingstring(cal, 'Besprechung')
 		end
 		index=index+1
 	end
 	buf.sub! '%nextmeeting%', ''
 	buf.sub! '%nextmeeting2%',''
 	buf.sub! '%lastupdate%', DateTime.now().strftime("%F/%H:%M:%S")
+	buf.sub! '%roomurl', '/room/'+roomname
 	buf
 end
