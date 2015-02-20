@@ -8,7 +8,7 @@ include Viewpoint::EWS
 set :bind, '0.0.0.0'
 
 get '/' do	
-  retrieveews("confroom1@exchange.local")
+  retrieveews("confroom1@exchange.local") # default room
 end
 
 get '/room/:roomname' do
@@ -123,5 +123,5 @@ def retrieveews(roomname)
 	buf.sub! '%nextmeeting2%',''
 	buf.sub! '%lastupdate%', DateTime.now().strftime("%F/%H:%M:%S")
 	buf.sub! '%roomurl', '/room/'+roomname
-	buf
+	buf # => output to webclient
 end
