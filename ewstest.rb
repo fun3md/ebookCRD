@@ -4,28 +4,32 @@ require 'time'
 require 'rubygems'
 require 'sinatra'
 include Viewpoint::EWS
+load './credentials.rb'
 
 set :bind, '0.0.0.0'
+set :port, 9393
 
 get '/' do	
-  retrieveews("confroom1@exchange.local") # default room
+  retrieveews("Saal_Elbblick") # default room
 end
 
 get '/room/:roomname' do
 	retrieveews(params[:roomname])
 end
 
+get '/room/:roomname/create/:minutes' do
+	
+	createMeeting(params[:minutes].to_i, params[:roomname] + Domain)
+	retrieveews(params[:roomname])
+end
+
 get '/create/:minutes' do
-	createMeeting(params[:minutes].to_i, "confroom1@exchange.local")
+	createMeeting(params[:minutes].to_i, "Saal_Elbblick" + Domain)
 	retrieveews()
 end
 
 def connectews()
-	endpoint = 'https://exchange.local/ews/Exchange.asmx'
-	user = 'exchangeusr1'
-	pass = 'password'
-
-	cli = Viewpoint::EWSClient.new endpoint, user, pass
+	cli = Viewpoint::EWSClient.new Endpoint, User, Pass
 	# => to get all available time zones
 	#pp cli.ews.get_time_zones(full=false,ids=nil)
 	cli.set_time_zone("W. Europe Standard Time")
@@ -33,6 +37,7 @@ def connectews()
 end
 
 def getcalendarews(usermail,cli)
+	pp usermail
 	return cli.get_folder :calendar, opts = {act_as: usermail}
 end
 
@@ -51,13 +56,14 @@ end
  
 def retrieveews(roomname)
 	buf = File.read('template.html')
+	buf.gsub! '%room%', 'room/'+roomname
 
 	cli=connectews()
 
-	folder = getcalendarews roomname, cli
+	folder = getcalendarews roomname+Domain, cli
 	
-	sd = Date.today()
-	ed = Date.today()+5 #look 5 days ahead
+	sd = Date.today()-1
+	ed = Date.today()+15 #look 5 days ahead
 
 	calendaritems= folder.items_between sd, ed
 
@@ -137,5 +143,6 @@ def retrieveews(roomname)
 	buf.sub! '%persons%','0'
 	buf.sub! '%organizer%','-'
 	buf.sub! '%lastupdate%', DateTime.now().strftime("%F/%H:%M:%S")
+	buf.gsub! '%room%',''
 	buf
 end
