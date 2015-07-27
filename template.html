@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="refresh" content="60; url=%roomurl%">
+<meta http-equiv="refresh" content="60; url=/">
 <style type="text/css">
 #box{
 	width: 600px;
@@ -31,7 +31,14 @@
 #startdate{
 	text-align: right;
 	width: 600px;
-	font-size: 60px;
+	font-size: 50px;
+	font-weight: bold;
+}
+
+#enddate{
+	text-align: left;
+	width: 600px;
+	font-size: 50px;
 	font-weight: bold;
 }
 
@@ -89,9 +96,10 @@
 <body>
 <div id="box">
 <div id='attendees'>%persons% Teilnehmer</div>
-<div id="starttime">%starttime% bis</div>
-<div id="endtime">%endtime% Uhr</div>
-<div id="startdate">%startdate%</div>
+<div id="enddate">%startdate%</div>
+<div id="starttime">%starttime%</div>
+<div id="endtime">%endtime%</div>
+<div id="startdate">%enddate%</div>
 <div id="subject">%subject%</div>
 <div id="organizer">Raum gebucht von: %organizer%</div>
 <br>

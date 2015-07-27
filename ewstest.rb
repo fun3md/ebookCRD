@@ -74,54 +74,68 @@ def retrieveews(roomname)
 	roomfree=false
 	calendaritems.each do |cal|
 		# => DEBUG
-		#pp index
-		#pp cal.subject
-		#pp cal.start.rfc3339()
-		#pp timenow.rfc3339()
+		pp index
+		pp cal.subject
+		pp cal.start.rfc3339()
+		pp cal.end.rfc3339()
+		pp timenow.rfc3339()
+		
+		# => DEBUG
 
 		if !cal.subject.nil? && index==0
 			if  timenow < cal.end &&  timenow < cal.start
-				buf.sub! '%starttime%', 'FREI'
-				buf.sub! '%endtime%', cal.start.strftime("%H:%M")
+				buf.sub! '%starttime%', 'FREI bis'
+				buf.sub! '%startdate%', ''
+				buf.sub! '%endtime%', cal.start.strftime("%H:%M")+' Uhr'
 				buf.sub! '%persons%', "0"
 				buf.sub! '%organizer%', '-'
 				buf.sub! '%subject%', 'Raum ist frei'
 
-				buf.sub! '%nextmeeting%', getmeetingstring(cal, 'Besprechung')
+				buf.sub! '%nextmeeting%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+'Besprechung')
 				roomfree=true
 			else
-				buf.sub! '%starttime%', cal.start.strftime("%H:%M")
-				buf.sub! '%endtime%', cal.end.strftime("%H:%M")
+				buf.sub! '%starttime%', cal.start.strftime("%H:%M")+' bis'
+				buf.sub! '%endtime%', cal.end.strftime("%H:%M")+' Uhr'
 				buf.sub! '%persons%', cal.required_attendees.count.to_s
 			end
 
 			buf.sub! '%subject%', 'Besprechung'
-			
 			buf.sub! '%startdate%', cal.start.strftime("%F")
+			buf.sub! '%enddate%', cal.end.strftime("%F")
 			buf.sub! '%organizer%', cal.organizer.name
 			cal.required_attendees.each do |names|
 				buf=buf
-
 			end
 		end
 
 		if index==1 
-			buf.sub! '%nextmeeting%', getmeetingstring(cal, 'Besprechung')
-
+			buf.sub! '%nextmeeting%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+'Besprechung')
+		
 			if roomfree==true
-				buf.sub! '%nextmeeting2%', getmeetingstring(cal, 'Besprechung')
+				subjectbuf='Besprechung'
+				buf.sub! '%nextmeeting2%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+subjectbuf)
 			end
 
 		end
 
 		if index==2
-			buf.sub! '%nextmeeting2%', getmeetingstring(cal, 'Besprechung')
+			subjectbuf='Besprechung'
+			buf.sub! '%nextmeeting2%', (cal.start.strftime("%H:%M")+'-'+cal.end.strftime("%H:%M")+' / '+cal.start.strftime("%F")+' :<br> '+cal.organizer.name+' ('+cal.required_attendees.count.to_s+' Teilnehmer)<br>'+subjectbuf)
 		end
 		index=index+1
 	end
+
 	buf.sub! '%nextmeeting%', ''
 	buf.sub! '%nextmeeting2%',''
+	buf.sub! '%starttime%','keine'
+	buf.sub! '%endtime%','Termine'
+	buf.sub! '%startdate%',''
+	buf.sub! '%enddate%',''
+	buf.sub! '%subject%',''
+	buf.sub! '%organizer%',''
+	buf.sub! '%subject%',''
+	buf.sub! '%persons%','0'
+	buf.sub! '%organizer%','-'
 	buf.sub! '%lastupdate%', DateTime.now().strftime("%F/%H:%M:%S")
-	buf.sub! '%roomurl', '/room/'+roomname
-	buf # => output to webclient
+	buf
 end
