@@ -63,7 +63,7 @@ def retrieveews(roomname)
 	folder = getcalendarews roomname+Domain, cli
 	
 	sd = Date.today()-1
-	ed = Date.today()+15 #look 5 days ahead
+	ed = Date.today()+15 #look 15 days ahead
 
 	calendaritems= folder.items_between sd, ed
 

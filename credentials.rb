@@ -1,4 +1,4 @@
-Endpoint = 'https://exchange.xxx.com/ews/Exchange.asmx'
-User = 'xxxewsuserxxx'
-Pass = 'xxxxxxx'
-Domain = '@xxxxxx.de'
+Endpoint = 'https://exchange.xxxxxxx.com/ews/Exchange.asmx'
+User = 'xxxxxxxxx'
+Pass = 'xxxxxxxxx'
+Domain = '@xxxxxxx.de'
